@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Report / Reporte de Seguridad — 2026-03-10</title>
+  <style>
+    :root {
+      --critical: #c0392b; --high: #e67e22; --medium: #f1c40f;
+      --low: #2980b9; --ok: #27ae60; --bg: #f4f6f8; --card: #fff;
+      --border: #dde1e7; --text: #2c3e50; --sub: #7f8c8d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    header { background: #1a252f; color: #fff; padding: 32px 40px; }
+    header h1 { font-size: 1.8rem; font-weight: 700; }
+    header p { color: #aab; margin-top: 4px; font-size: 0.95rem; }
+    .badge { display: inline-block; border-radius: 4px; padding: 3px 10px; font-size: 0.78rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+    .badge-fail   { background: var(--critical); color: #fff; }
+    .badge-warn   { background: var(--high); color: #fff; }
+    .badge-pass   { background: var(--ok); color: #fff; }
+    .badge-crit   { background: var(--critical); color: #fff; }
+    .badge-high   { background: var(--high); color: #fff; }
+    .badge-med    { background: var(--medium); color: #333; }
+    .badge-low    { background: var(--low); color: #fff; }
+    .badge-info   { background: #8e44ad; color: #fff; }
+    .badge-ok     { background: var(--ok); color: #fff; }
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+    .section-header { background: #eaf0fb; padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .section-header h2 { font-size: 1.05rem; font-weight: 700; }
+    .section-header .meta { color: var(--sub); font-size: 0.82rem; margin-left: auto; }
+    .section-body { padding: 20px; }
+    .posture-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .posture-card { border-radius: 8px; padding: 16px; text-align: center; border: 1px solid var(--border); }
+    .posture-card .num { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+    .posture-card .lbl { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; margin-top: 6px; color: var(--sub); }
+    .c { color: var(--critical); } .h { color: var(--high); } .m { color: #c8a000; } .g { color: var(--ok); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: #f0f4fa; text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--border); font-size: 0.78rem; text-transform: uppercase; letter-spacing: .5px; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbfc; }
+    .finding { margin-bottom: 28px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .finding:last-child { margin-bottom: 0; }
+    .finding-header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+    .finding-header h3 { font-size: 0.95rem; font-weight: 700; flex: 1; }
+    .finding-body { padding: 16px; }
+    .finding-body dl { display: grid; grid-template-columns: 160px 1fr; gap: 4px 12px; font-size: 0.87rem; }
+    .finding-body dt { font-weight: 600; color: var(--sub); padding-top: 2px; }
+    .finding-body dd { padding-top: 2px; }
+    .code-block { background: #1e2d3d; color: #cdd9e5; border-radius: 6px; padding: 12px 16px; font-family: 'SF Mono', monospace; font-size: 0.82rem; margin: 8px 0; white-space: pre-wrap; word-break: break-all; }
+    .code-block.bad { border-left: 4px solid var(--critical); }
+    .code-block.good { border-left: 4px solid var(--ok); }
+    .code-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+    .code-label.bad { color: var(--critical); } .code-label.good { color: var(--ok); }
+    .lang-divider { text-align: center; margin: 4px 0; color: var(--sub); font-size: 0.8rem; }
+    .tools-list { display: flex; gap: 12px; flex-wrap: wrap; }
+    .tool-pill { background: #eaf0fb; border: 1px solid #c5d5ea; border-radius: 20px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; }
+    .recs li { margin-bottom: 8px; font-size: 0.9rem; padding-left: 8px; }
+    .recs ul { padding-left: 20px; list-style: disc; }
+    .exec-time { font-size: 0.78rem; color: var(--sub); font-style: italic; }
+    .fp-note { background: #fffbe6; border: 1px solid #f1c40f; border-radius: 6px; padding: 10px 14px; font-size: 0.85rem; margin-top: 10px; }
+    footer { text-align: center; color: var(--sub); font-size: 0.8rem; padding: 24px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔒 Security Report / Reporte de Seguridad</h1>
+  <p>Proyecto-Interfaces-Diseno-Software &nbsp;|&nbsp; Branch: <strong>main</strong> &nbsp;|&nbsp; 2026-03-10 &nbsp;|&nbsp;
+    Verdict / Veredicto: <span class="badge badge-fail">❌ FAIL — HIGH RISK</span>
+  </p>
+</header>
+
+<main>
+
+  <!-- ═══════════════ 1. SECURITY POSTURE ═══════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>1. Security Posture / Postura de Seguridad</h2>
+      <span class="meta exec-time">Execution time: ~3 min 30 sec total</span>
+    </div>
+    <div class="section-body">
+      <p style="margin-bottom:16px">
+        <strong>EN:</strong> The project presents a <strong>HIGH RISK</strong> security posture.
+        A critical vulnerability (CVSS 9.8) was found in a transitive dependency that can lead to remote command hijacking on Windows environments.
+        Three high-severity dependency vulnerabilities allow environment variable injection and denial-of-service.
+        No secrets were leaked. One SAST finding is a likely false positive (test fixture).<br/>
+        <br/>
+        <strong>ES:</strong> El proyecto presenta una postura de seguridad de <strong>ALTO RIESGO</strong>.
+        Se identificó una vulnerabilidad crítica (CVSS 9.8) en una dependencia transitiva que puede derivar en secuestro remoto de comandos en entornos Windows.
+        Tres vulnerabilidades de alta severidad en dependencias permiten inyección de variables de entorno y denegación de servicio.
+        No se detectaron secretos expuestos. Un hallazgo SAST es probablemente un falso positivo (fixture de prueba).
+      </p>
+      <div class="posture-grid">
+        <div class="posture-card"><div class="num c">1</div><div class="lbl">Critical / Crítico</div></div>
+        <div class="posture-card"><div class="num h">3</div><div class="lbl">High / Alto</div></div>
+        <div class="posture-card"><div class="num m">6</div><div class="lbl">Medium / Medio</div></div>
+        <div class="posture-card"><div class="num g">0</div><div class="lbl">Low / Bajo</div></div>
+        <div class="posture-card"><div class="num g">0</div><div class="lbl">Secrets / Secretos</div></div>
+        <div class="posture-card"><div class="num" style="color:#8e44ad">1*</div><div class="lbl">SAST (FP)</div></div>
+      </div>
+      <p style="margin-top:12px;font-size:0.82rem;color:var(--sub)">* FP = Likely false positive / Probable falso positivo</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 2. FINDINGS SUMMARY ═══════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>2. Findings Summary / Resumen de Hallazgos</h2>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead>
+          <tr><th>Scan / Escaneo</th><th>Tool</th><th>Critical</th><th>High</th><th>Medium</th><th>Low</th><th>Status</th><th>Time</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SAST</td><td>Semgrep OSS v1.153.1</td>
+            <td>—</td><td><span class="badge badge-info">1 (FP)</span></td><td>—</td><td>—</td>
+            <td><span class="badge badge-warn">WARN</span></td><td class="exec-time">~2 min</td>
+          </tr>
+          <tr>
+            <td>Secrets</td><td>Gitleaks</td>
+            <td>—</td><td>—</td><td>—</td><td>—</td>
+            <td><span class="badge badge-pass">PASS</span></td><td class="exec-time">672 ms</td>
+          </tr>
+          <tr>
+            <td>Dependencies / Dependencias</td><td>Trivy v0.69.3</td>
+            <td><span class="badge badge-crit">1</span></td>
+            <td><span class="badge badge-high">3</span></td>
+            <td><span class="badge badge-med">6</span></td>
+            <td>—</td>
+            <td><span class="badge badge-fail">FAIL</span></td><td class="exec-time">~1 min</td>
+          </tr>
+          <tr>
+            <td>IaC</td><td>N/A</td>
+            <td colspan="4" style="color:var(--sub)">No IaC files detected / Sin archivos IaC</td>
+            <td><span class="badge badge-pass">SKIP</span></td><td>—</td>
+          </tr>
+          <tr>
+            <td>Container</td><td>N/A</td>
+            <td colspan="4" style="color:var(--sub)">No Dockerfile detected / Sin Dockerfile</td>
+            <td><span class="badge badge-pass">SKIP</span></td><td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 3. TOOLS USED ═══════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>3. Tools Used / Herramientas Utilizadas</h2>
+    </div>
+    <div class="section-body">
+      <div class="tools-list">
+        <div class="tool-pill">🔍 Semgrep OSS v1.153.1 (SAST)</div>
+        <div class="tool-pill">🔑 Gitleaks (Secrets)</div>
+        <div class="tool-pill">📦 Trivy v0.69.3 (Dependency)</div>
+        <div class="tool-pill">🐳 Docker 28.5.2 (Runtime)</div>
+      </div>
+      <p style="margin-top:12px;font-size:0.85rem;color:var(--sub)">
+        All tools ran via Docker containers against the project root. Semgrep used <code>--config=auto</code> (243 rules, 143 files scanned).
+        Trivy scanned <code>composer.lock</code> and <code>package-lock.json</code>. Gitleaks scanned git history (2 commits, 656 KB).
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 4. DETAILED FINDINGS ═══════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>4. Detailed Findings / Hallazgos Detallados</h2>
+    </div>
+    <div class="section-body">
+
+      <!-- ─── F1: CVE-2024-51736 CRITICAL ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fdf2f2">
+          <span class="badge badge-crit">CRITICAL</span>
+          <h3>CVE-2024-51736 — Command Execution Hijack (symfony/process)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS 9.8</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>symfony/process@v6.3.0</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>6.4.14+</code> or <code>7.1.7+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd>9.8</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</dd>
+            <dt>CWE</dt><dd>CWE-78 — OS Command Injection</dd>
+            <dt>OWASP</dt><dd>A03:2021 — Injection</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 2: Injection Prevention, Rule 8: Subprocess</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> On Windows, when an executable named <code>cmd.exe</code> exists in the current working directory, the Symfony <code>Process</code> class may call it instead of the system <code>cmd.exe</code>, allowing command execution hijacking. Although the application likely runs on Linux, the dependency itself is vulnerable and should be updated.<br/>
+            <strong>ES:</strong> En Windows, si existe un ejecutable llamado <code>cmd.exe</code> en el directorio de trabajo actual, la clase <code>Process</code> de Symfony podría llamarlo en lugar del sistema, permitiendo el secuestro de ejecución de comandos. Aunque la aplicación probablemente corre en Linux, la dependencia debe actualizarse.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label bad">Vulnerable (composer.lock)</div>
+            <div class="code-block bad">"name": "symfony/process",
+"version": "v6.3.0"</div>
+            <div class="code-label good">Fixed / Corregido (composer.json)</div>
+            <div class="code-block good">"symfony/process": "^6.4.14"
+// Then run: composer update symfony/process</div>
+          </div>
+          <div class="fp-note" style="background:#fdf2f2;border-color:#c0392b">
+            <strong>Validation steps / Pasos de validación:</strong><br/>
+            1. Run <code>composer update symfony/process</code><br/>
+            2. Re-run <code>trivy fs --scanners vuln .</code> and verify CVE-2024-51736 is absent<br/>
+            3. Run <code>php artisan test</code> to verify no regressions
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── F2: CVE-2024-52301 HIGH ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fff5ec">
+          <span class="badge badge-high">HIGH</span>
+          <h3>CVE-2024-52301 — Environment Variable Injection (laravel/framework)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS 7.5</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>laravel/framework@v10.13.5</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>10.48.23+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd>7.5</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-20 — Improper Input Validation</dd>
+            <dt>OWASP</dt><dd>A05:2021 — Security Misconfiguration</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 1: Input Validation</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> When <code>register_argc_argv</code> is enabled in PHP config, a crafted query string can override the application environment (<code>APP_ENV</code>), allowing attackers to switch to debug mode, disable HTTPS enforcement, or manipulate other environment-driven behaviors.<br/>
+            <strong>ES:</strong> Cuando <code>register_argc_argv</code> está habilitado, una query string maliciosa puede sobreescribir el entorno de la aplicación (<code>APP_ENV</code>), permitiendo activar modo debug o deshabilitar HTTPS.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label bad">Vulnerable</div>
+            <div class="code-block bad">"laravel/framework": "v10.13.5"</div>
+            <div class="code-label good">Fixed / Corregido</div>
+            <div class="code-block good">"laravel/framework": "^10.48.23"
+// Then run: composer update laravel/framework</div>
+          </div>
+          <div class="fp-note" style="background:#fff5ec;border-color:#e67e22">
+            <strong>Validation steps / Pasos de validación:</strong><br/>
+            1. Verify <code>php.ini</code>: set <code>register_argc_argv = Off</code> as an immediate mitigation<br/>
+            2. Run <code>composer update laravel/framework</code> to apply patch<br/>
+            3. Run <code>php artisan test</code> and <code>trivy fs .</code> to verify
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── F3: GHSA-c2pc-g5qf-rfrf HIGH ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fff5ec">
+          <span class="badge badge-high">HIGH</span>
+          <h3>GHSA-c2pc-g5qf-rfrf — Denial of Service via Quadratic Complexity (league/commonmark)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS N/A</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>league/commonmark@2.4.0</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>2.6.0+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd>N/A</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-400 — Uncontrolled Resource Consumption (DoS)</dd>
+            <dt>OWASP</dt><dd>A06:2021 — Vulnerable Components</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 7: Dependencies &amp; Supply Chain</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> Polynomial time complexity issues in the Markdown parser allow crafted input to cause unbounded resource exhaustion (CPU/memory), leading to denial of service. Note: this package is also affected by CVE-2025-46734 (XSS) and CVE-2026-30838 (HTML filter bypass) — updating to 2.8.1+ resolves all three.<br/>
+            <strong>ES:</strong> Problemas de complejidad polinomial en el parser Markdown permiten entradas maliciosas que agotan recursos del servidor (CPU/memoria). Además afecta CVE-2025-46734 (XSS) y CVE-2026-30838 (bypass de filtro HTML). Actualizar a 2.8.1+ resuelve los tres.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label bad">Vulnerable</div>
+            <div class="code-block bad">"league/commonmark": "2.4.0"</div>
+            <div class="code-label good">Fixed / Corregido (resolves 3 CVEs)</div>
+            <div class="code-block good">"league/commonmark": "^2.8.1"
+// Then run: composer update league/commonmark</div>
+          </div>
+          <div class="fp-note" style="background:#fff5ec;border-color:#e67e22">
+            <strong>Validation steps / Pasos de validación:</strong><br/>
+            1. Run <code>composer update league/commonmark</code><br/>
+            2. Test any Markdown rendering features in the application<br/>
+            3. Re-run <code>trivy fs .</code> and confirm GHSA-c2pc-g5qf-rfrf, CVE-2025-46734, CVE-2026-30838 are absent
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── F4: CVE-2025-64500 HIGH ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fff5ec">
+          <span class="badge badge-high">HIGH</span>
+          <h3>CVE-2025-64500 — Improper Request Trust Headers (symfony/http-foundation)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS N/A</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>symfony/http-foundation@v6.3.0</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>6.4.29+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd>N/A</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-20 — Improper Input Validation</dd>
+            <dt>OWASP</dt><dd>A05:2021 — Security Misconfiguration</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 1: Input Validation</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> The <code>Request</code> class improperly inherits trusted headers from the client, potentially allowing attackers to spoof IP addresses, bypass IP-based rate limiting, or manipulate HTTPS detection. Also note CVE-2024-50345 (MEDIUM, CVSS 6.1) affects the same package — updating to 6.4.29+ resolves both.<br/>
+            <strong>ES:</strong> La clase <code>Request</code> hereda incorrectamente cabeceras de confianza del cliente, permitiendo falsificar IPs, evadir rate limiting o manipular detección HTTPS. CVE-2024-50345 (Medio, CVSS 6.1) también afecta este paquete — actualizar a 6.4.29+ resuelve ambos.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label bad">Vulnerable</div>
+            <div class="code-block bad">"symfony/http-foundation": "v6.3.0"</div>
+            <div class="code-label good">Fixed / Corregido (resolves 2 CVEs)</div>
+            <div class="code-block good">"symfony/http-foundation": "^6.4.29"
+// Then run: composer update symfony/http-foundation</div>
+          </div>
+          <div class="fp-note" style="background:#fff5ec;border-color:#e67e22">
+            <strong>Validation steps / Pasos de validación:</strong><br/>
+            1. Run <code>composer update symfony/http-foundation</code><br/>
+            2. Verify Laravel's <code>App\Http\Middleware\TrustProxies</code> is properly configured<br/>
+            3. Run <code>php artisan test</code> and <code>trivy fs .</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── F5: CVE-2025-27515 MEDIUM (high CVSS) ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fffbe6">
+          <span class="badge badge-med">MEDIUM</span>
+          <h3>CVE-2025-27515 — Wildcard Validation Bypass (laravel/framework)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS 9.8 ⚠️</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>laravel/framework@v10.13.5</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>10.48.29+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd><strong>9.8</strong> (vendor-rated MEDIUM — requires specific config)</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-20 — Improper Input Validation</dd>
+            <dt>OWASP</dt><dd>A03:2021 — Injection</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 1: Input Validation, Rule 7: Dependencies</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> ⚠️ Despite vendor MEDIUM rating, the CVSS score is 9.8. A malicious request can bypass wildcard file/image validation rules (e.g., <code>files.*</code>), potentially allowing upload of unauthorized file types. If the application accepts file uploads, this should be treated as CRITICAL.<br/>
+            <strong>ES:</strong> ⚠️ A pesar del rating MEDIUM del vendor, el CVSS es 9.8. Una solicitud maliciosa puede evadir reglas de validación wildcard en archivos/imágenes (ej: <code>files.*</code>), permitiendo subir tipos de archivos no autorizados. Si la aplicación acepta uploads, tratar como CRÍTICO.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label bad">Vulnerable</div>
+            <div class="code-block bad">"laravel/framework": "v10.13.5"</div>
+            <div class="code-label good">Fixed / Corregido</div>
+            <div class="code-block good">"laravel/framework": "^10.48.29"
+// Then run: composer update laravel/framework</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── F6: CVE-2025-22145 MEDIUM ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fffbe6">
+          <span class="badge badge-med">MEDIUM</span>
+          <h3>CVE-2025-22145 — Arbitrary File Include via Locale (nesbot/carbon)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS N/A</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>nesbot/carbon@2.67.0</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>2.72.6+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd>N/A</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-22 — Path Traversal / File Include</dd>
+            <dt>OWASP</dt><dd>A03:2021 — Injection</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 2: Injection Prevention (Path Traversal)</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> If unsanitized user input is passed to <code>Carbon::setLocale()</code> and the app allows PHP file uploads to an accessible directory, an attacker may trigger arbitrary file inclusion.<br/>
+            <strong>ES:</strong> Si se pasan datos de usuario sin sanitizar a <code>Carbon::setLocale()</code> y la aplicación permite subir archivos PHP a un directorio accesible, un atacante puede provocar inclusión arbitraria de archivos.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label good">Fixed / Corregido</div>
+            <div class="code-block good">"nesbot/carbon": "^2.72.6"
+// Then run: composer update nesbot/carbon</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── F7: CVE-2026-25129 MEDIUM ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fffbe6">
+          <span class="badge badge-med">MEDIUM</span>
+          <h3>CVE-2026-25129 — Local Privilege Escalation via CWD (psy/psysh)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS 7.3</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>psy/psysh@v0.11.18</code> (dev dependency via Laravel)</dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>0.11.23+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd>7.3</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-269 — Improper Privilege Management</dd>
+            <dt>OWASP</dt><dd>A04:2021 — Insecure Design</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 7: Dependencies &amp; Supply Chain</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> PsySH auto-loads <code>.psysh.php</code> from the CWD on startup. If an attacker writes to a directory a developer uses as CWD, they can execute arbitrary PHP code when the developer runs <code>php artisan tinker</code>. Low exploitation likelihood in CI/CD, but relevant in dev environments.<br/>
+            <strong>ES:</strong> PsySH carga automáticamente <code>.psysh.php</code> del CWD al iniciar. Si un atacante puede escribir en ese directorio, puede ejecutar PHP arbitrario cuando el desarrollador usa <code>php artisan tinker</code>. Bajo riesgo en CI/CD, relevante en entornos dev.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label good">Fixed / Corregido</div>
+            <div class="code-block good">"psy/psysh": "^0.11.23"
+// Then run: composer update psy/psysh</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── F8: CVE-2024-50345 MEDIUM ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fffbe6">
+          <span class="badge badge-med">MEDIUM</span>
+          <h3>CVE-2024-50345 — URI Parsing Inconsistency (symfony/http-foundation)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS 6.1</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>symfony/http-foundation@v6.3.0</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>6.4.14+</code> (resolved together with CVE-2025-64500 via 6.4.29+)</dd>
+            <dt>CVSS 3.1 Score</dt><dd>6.1</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-20 — Improper Input Validation</dd>
+            <dt>OWASP</dt><dd>A03:2021 — Injection</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 1: Input Validation</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> The <code>Request</code> class parses URIs with special characters differently from browsers, enabling attackers to bypass URI-based validators and access control rules.<br/>
+            <strong>ES:</strong> La clase <code>Request</code> parsea URIs con caracteres especiales de forma diferente a los navegadores, permitiendo evadir validadores basados en URI y reglas de control de acceso. Resuelto al actualizar <code>symfony/http-foundation</code> a 6.4.29+.
+          </p>
+        </div>
+      </div>
+
+      <!-- ─── F9: CVE-2025-46734 MEDIUM ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fffbe6">
+          <span class="badge badge-med">MEDIUM</span>
+          <h3>CVE-2025-46734 — XSS in Attributes Extension (league/commonmark)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS N/A</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>league/commonmark@2.4.0</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>2.7.0+</code> (use 2.8.1+ to resolve all three CVEs)</dd>
+            <dt>CVSS 3.1 Score</dt><dd>N/A</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-79 — Cross-Site Scripting (XSS)</dd>
+            <dt>OWASP</dt><dd>A03:2021 — Injection</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 2: Injection Prevention (XSS)</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> Remote attackers can inject malicious JavaScript via the Attributes extension of the Markdown parser. Resolved by updating to 2.8.1+ (also fixes GHSA-c2pc-g5qf-rfrf and CVE-2026-30838).<br/>
+            <strong>ES:</strong> Atacantes remotos pueden inyectar JavaScript malicioso a través de la extensión de Atributos del parser Markdown. Resuelto actualizando a 2.8.1+.
+          </p>
+        </div>
+      </div>
+
+      <!-- ─── F10: CVE-2026-30838 MEDIUM ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#fffbe6">
+          <span class="badge badge-med">MEDIUM</span>
+          <h3>CVE-2026-30838 — DisallowedRawHtml Filter Bypass (league/commonmark)</h3>
+          <span class="badge" style="background:#555;color:#fff">CVSS N/A</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Package / Paquete</dt><dd><code>league/commonmark@2.4.0</code></dd>
+            <dt>Fixed in / Corregido en</dt><dd><code>2.8.1+</code></dd>
+            <dt>CVSS 3.1 Score</dt><dd>N/A</dd>
+            <dt>CVSS 3.1 Vector</dt><dd>N/A</dd>
+            <dt>CWE</dt><dd>CWE-79 — Cross-Site Scripting (XSS)</dd>
+            <dt>OWASP</dt><dd>A03:2021 — Injection</dd>
+            <dt>Location</dt><dd><code>composer.lock</code></dd>
+            <dt>AGENT_RULES</dt><dd>Rule 2: Injection Prevention (XSS)</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> The <code>DisallowedRawHtml</code> extension can be bypassed by inserting whitespace (newline, tab) between an HTML tag name and <code>&gt;</code>, e.g., <code>&lt;script\n&gt;</code> renders unfiltered. Resolved by updating to 2.8.1+.<br/>
+            <strong>ES:</strong> La extensión <code>DisallowedRawHtml</code> puede ser evadida insertando espacios (salto de línea, tab) entre el nombre de una etiqueta HTML y <code>&gt;</code>. Resuelto actualizando a 2.8.1+.
+          </p>
+        </div>
+      </div>
+
+      <!-- ─── F11: SAST - bcrypt hash (likely FP) ─── -->
+      <div class="finding">
+        <div class="finding-header" style="background:#f5f0fb">
+          <span class="badge badge-info">INFO / FP</span>
+          <h3>detected-bcrypt-hash — Hardcoded Bcrypt Hash in Test Factory (UserFactory.php)</h3>
+          <span class="badge" style="background:#555;color:#fff">CWE-798</span>
+        </div>
+        <div class="finding-body">
+          <dl>
+            <dt>Rule</dt><dd><code>generic.secrets.security.detected-bcrypt-hash</code></dd>
+            <dt>Location</dt><dd><code>database/factories/UserFactory.php:24</code></dd>
+            <dt>Severity</dt><dd>ERROR (Semgrep) → INFO after triage</dd>
+            <dt>CVSS 3.1</dt><dd>N/A</dd>
+            <dt>Confidence</dt><dd>LOW (Semgrep-reported)</dd>
+            <dt>CWE</dt><dd>CWE-798 — Hardcoded Credentials</dd>
+            <dt>OWASP</dt><dd>A07:2021 — Identification and Authentication Failures</dd>
+            <dt>AGENT_RULES</dt><dd>Rule 3: Secrets Management</dd>
+          </dl>
+          <p style="margin-top:12px;font-size:0.88rem">
+            <strong>EN:</strong> Semgrep detected a bcrypt hash in the Laravel UserFactory (test seeder). The hash <code>$2y$10$92IXU...</code> is the standard Laravel placeholder for "password" in test factories — this is a <strong>likely false positive</strong> as it is only used in seeding test data, not production credentials. However, best practice is to generate the hash at runtime to avoid any risk.<br/>
+            <strong>ES:</strong> Semgrep detectó un hash bcrypt en el UserFactory de Laravel (seeder de prueba). El hash es el placeholder estándar de Laravel para "password" en factories — es un <strong>probable falso positivo</strong> ya que solo se usa en datos de prueba. Sin embargo, la mejor práctica es generarlo en tiempo de ejecución.
+          </p>
+          <div style="margin-top:12px">
+            <div class="code-label bad">Current (vulnerable pattern) / Actual (patrón vulnerable)</div>
+            <div class="code-block bad">// database/factories/UserFactory.php:24
+'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password</div>
+            <div class="code-label good">Proposed Fix / Corrección Propuesta</div>
+            <div class="code-block good">// database/factories/UserFactory.php:24
+'password' => bcrypt('password'),
+// Or for better performance in tests (cached):
+// 'password' => Hash::make('password'),</div>
+          </div>
+          <div class="fp-note">
+            <strong>⚠️ Note / Nota:</strong> This finding is a <strong>likely false positive</strong>. The hash is only used in test seeding. However, applying the proposed fix eliminates the finding and is the recommended Laravel pattern. Do NOT apply without developer review / Este hallazgo es probablemente un falso positivo. El fix propuesto elimina el hallazgo y es el patrón recomendado de Laravel. No aplicar sin revisión del desarrollador.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ 5. FIX FINDINGS SUMMARY ═══════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>5. Fix Findings — Proposed Remediation Summary / Resumen de Correcciones Propuestas</h2>
+    </div>
+    <div class="section-body">
+      <p style="margin-bottom:12px;font-size:0.88rem">
+        <strong>EN:</strong> All fixes below are proposals only. No changes have been applied to the codebase. The developer must validate and apply each fix after testing.<br/>
+        <strong>ES:</strong> Todas las correcciones son solo propuestas. No se ha modificado el código fuente. El desarrollador debe validar y aplicar cada corrección después de probarla.
+      </p>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Severity</th><th>Finding</th><th>Action Required / Acción</th><th>Command / Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><span class="badge badge-crit">CRITICAL</span></td><td>CVE-2024-51736</td><td>Update <code>symfony/process</code> to ^6.4.14</td><td><code>composer update symfony/process</code></td></tr>
+          <tr><td>2</td><td><span class="badge badge-high">HIGH</span></td><td>CVE-2024-52301</td><td>Update <code>laravel/framework</code> to ^10.48.23; set <code>register_argc_argv=Off</code></td><td><code>composer update laravel/framework</code></td></tr>
+          <tr><td>3</td><td><span class="badge badge-high">HIGH</span></td><td>GHSA-c2pc-g5qf-rfrf + CVE-2025-46734 + CVE-2026-30838</td><td>Update <code>league/commonmark</code> to ^2.8.1 (resolves 3 CVEs)</td><td><code>composer update league/commonmark</code></td></tr>
+          <tr><td>4</td><td><span class="badge badge-high">HIGH</span></td><td>CVE-2025-64500 + CVE-2024-50345</td><td>Update <code>symfony/http-foundation</code> to ^6.4.29 (resolves 2 CVEs)</td><td><code>composer update symfony/http-foundation</code></td></tr>
+          <tr><td>5</td><td><span class="badge badge-med">MEDIUM ⚠️</span></td><td>CVE-2025-27515 (CVSS 9.8)</td><td>Update <code>laravel/framework</code> to ^10.48.29</td><td>Included in step 2 update</td></tr>
+          <tr><td>6</td><td><span class="badge badge-med">MEDIUM</span></td><td>CVE-2025-22145</td><td>Update <code>nesbot/carbon</code> to ^2.72.6</td><td><code>composer update nesbot/carbon</code></td></tr>
+          <tr><td>7</td><td><span class="badge badge-med">MEDIUM</span></td><td>CVE-2026-25129</td><td>Update <code>psy/psysh</code> to ^0.11.23</td><td><code>composer update psy/psysh</code></td></tr>
+          <tr><td>8</td><td><span class="badge badge-info">INFO/FP</span></td><td>SAST: bcrypt hash in UserFactory</td><td>Replace hardcoded hash with <code>bcrypt('password')</code></td><td>Code change — developer review required</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:16px">
+        <div class="code-label good">Recommended single command / Comando único recomendado</div>
+        <div class="code-block good">composer update symfony/process laravel/framework league/commonmark symfony/http-foundation nesbot/carbon psy/psysh
+php artisan test
+# Then re-run: trivy fs --scanners vuln .</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 6. OVERALL RECOMMENDATIONS ═══════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>6. Overall Recommendations / Recomendaciones Generales</h2>
+    </div>
+    <div class="section-body">
+      <ul class="recs">
+        <ul>
+          <li>🔴 <strong>Immediate / Inmediato:</strong> Update <code>symfony/process</code> to fix CVE-2024-51736 (CVSS 9.8, command execution hijack).</li>
+          <li>🟠 <strong>Current sprint / Sprint actual:</strong> Run <code>composer update</code> for <code>laravel/framework</code>, <code>league/commonmark</code>, and <code>symfony/http-foundation</code> to resolve 4 HIGH findings.</li>
+          <li>🟡 <strong>Next sprint / Próximo sprint:</strong> Update remaining MEDIUM packages (<code>nesbot/carbon</code>, <code>psy/psysh</code>) and review whether <code>league/commonmark</code> is used with user-supplied Markdown (if so, elevate XSS CVEs to HIGH).</li>
+          <li>📋 <strong>Process / Proceso:</strong> Add <code>composer audit</code> to your CI/CD pipeline to automatically detect new dependency CVEs on every pull request.</li>
+          <li>📋 <strong>Process / Proceso:</strong> Consider pinning major versions in <code>composer.json</code> (e.g., <code>"laravel/framework": "10.48.29"</code>) to prevent unintended upgrades (SLSA / AGENT_RULES Rule 7).</li>
+          <li>🔑 <strong>Secrets:</strong> No secrets found in git history. Continue using <code>.env</code> files (excluded from git) for all credentials.</li>
+          <li>📦 <strong>SAST:</strong> Consider adding <code>database/factories/</code> to <code>.semgrepignore</code> to suppress test fixture false positives, or replace the hardcoded hash with <code>bcrypt('password')</code>.</li>
+        </ul>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 7. NEXT STEPS ═══════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>7. Next Steps / Próximos Pasos</h2>
+    </div>
+    <div class="section-body">
+      <ol style="padding-left:20px;font-size:0.9rem">
+        <li style="margin-bottom:8px">Apply the <code>composer update</code> command listed in Section 5 and run <code>php artisan test</code> to verify no regressions.</li>
+        <li style="margin-bottom:8px">Re-run this security scan (<code>/Security-Policies</code>) after dependency updates to confirm all CVEs are resolved.</li>
+        <li style="margin-bottom:8px">Integrate <code>composer audit</code> and <code>gitleaks protect --staged</code> as pre-commit hooks.</li>
+        <li style="margin-bottom:8px">Schedule a follow-up full scan in 30 days or after any major dependency update.</li>
+        <li style="margin-bottom:8px">Consider running a <strong>Threat Model</strong> (<code>/Security-Policies threat-model</code>) for the cart and authentication flows as the application handles e-commerce data.</li>
+      </ol>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Generated by Claude Code Security Policies Skill &nbsp;|&nbsp; 2026-03-10 &nbsp;|&nbsp;
+  Total execution time / Tiempo total de ejecución: <strong>~3 min 30 sec</strong> &nbsp;|&nbsp;
+  Tools: Semgrep OSS v1.153.1 · Gitleaks · Trivy v0.69.3 · Docker 28.5.2<br/>
+  ⚠️ All proposed fixes are for developer review only — no changes were applied to the codebase / Todas las correcciones propuestas son solo para revisión del desarrollador — no se aplicaron cambios al código fuente.
+</footer>
+
+</body>
+</html>
