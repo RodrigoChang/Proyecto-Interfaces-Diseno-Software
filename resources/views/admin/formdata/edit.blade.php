@@ -1,21 +1,19 @@
 @extends('templates.FormIndex')
 
+@section('heading', 'Edición Formulario')
+
 @section('content')
-    <section class="ftco-section">
-        <div class="container">
-            <div class="container-sm">
-                <div class="col-md-8 offset-md-2" style="text-align:center; padding:0.5em 0">
-                    <img src="{{ asset('img/logo.png') }}" class="img-fluid">
-                    <h1>Edición Formulario de <b>{{ $formulario->user_name }}</b></h1>
-                    <hr>
-                </div>
-                <form method="PUT" action="{{ route('admin.formdata.update', $formulario->id) }}">
-                    @include('admin.formdata.partials.FormEdition')
-                </form>
-            </div>
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg px-6 py-6">
+        <div class="text-center mb-6">
+            <img src="{{ asset('img/logo.png') }}" class="h-16 mx-auto mb-4">
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">
+                Edición Formulario de <strong>{{ $formulario->user_name }}</strong>
+            </h1>
+            <hr class="mt-4 border-gray-200 dark:border-gray-700">
         </div>
-        </div>
-        </div>
-        </div>
-    </section>
+        <form method="POST" action="{{ route('admin.formdata.update', $formulario->id) }}">
+            @method('PUT')
+            @include('admin.formdata.partials.FormEdition')
+        </form>
+    </div>
 @endsection

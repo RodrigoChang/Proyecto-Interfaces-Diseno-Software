@@ -1,44 +1,52 @@
 @extends('templates.index')
 
-@section('content')
-    <h1 align="center">Registro General de Formularios</h1>
+@section('heading', 'Registro General de Formularios')
 
-    <div class="card">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">#Id</th>
-                    <th scope="col">RUT</th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Apellido Paterno</th>
-                    <th scope="col">Apellido Materno</th>
-                    <th scope="col">Dirección</th>
-                    <th scope="col">Fecha Creación</th>
-                    <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($formularios as $form)
+@section('content')
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th scope="row">{{ $form->id }}</th>
-                        <td>{{ $form->user_dni }}</td>
-                        <td>{{ $form->user_name }}</td>
-                        <td>{{ $form->apellidopaterno }}</td>
-                        <td>{{ $form->apellidomaterno }}</td>
-                        <td>{{ $form->user_address }}</td>
-                        <td>{{ $form->created_at }}</td>
-                        <td>
-                            <a href="{{ route('admin.formdata.edit', $form->id) }}" class="btn btn-primary">Editar</a>
-                            <form action="{{ route('admin.formdata.destroy', $form->id) }}" method="POST"
-                                class="d-inline">
-                                @method('DELETE')
-                                @csrf
-                                <button type="submit" class="btn btn-danger">Eliminar</button>
-                            </form>
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">#Id</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">RUT</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Apellido Paterno</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Apellido Materno</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Dirección</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha Creación</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    @foreach ($formularios as $form)
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $form->id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $form->user_dni }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $form->user_name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $form->apellidopaterno }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $form->apellidomaterno }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $form->user_address }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $form->created_at }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
+                                <a href="{{ route('admin.formdata.edit', $form->id) }}"
+                                   class="inline-flex items-center px-3 py-1.5 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white transition ease-in-out duration-150">
+                                    Editar
+                                </a>
+                                <form action="{{ route('admin.formdata.destroy', $form->id) }}" method="POST" class="inline">
+                                    @method('DELETE')
+                                    @csrf
+                                    <button type="submit"
+                                            onclick="return confirm('¿Eliminar formulario de {{ $form->user_name }}?')"
+                                            class="inline-flex items-center px-3 py-1.5 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 transition ease-in-out duration-150">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection
