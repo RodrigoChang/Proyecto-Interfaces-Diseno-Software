@@ -14,7 +14,7 @@
                 <p class="text-gray-600 dark:text-gray-400 mb-4">
                     En esta sección podrá visualizar los Vehículos Arrendados en el sistema.
                 </p>
-                <a href="{{ route('admin.formdata.index') }}"
+                <a href="{{ url('/admin/formdata') }}"
                    class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white transition ease-in-out duration-150">
                     Ver Vehículos Arrendados
                 </a>
@@ -29,7 +29,7 @@
                 <p class="text-gray-600 dark:text-gray-400 mb-4">
                     En esta sección podrá visualizar los usuarios registrados en el sistema.
                 </p>
-                <a href="{{ route('admin.users.index') }}"
+                <a href="{{ url('/admin/users') }}"
                    class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white transition ease-in-out duration-150">
                     Ver Usuarios Registrados
                 </a>
