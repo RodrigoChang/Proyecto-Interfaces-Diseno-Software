@@ -36,3 +36,11 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Security scan reports
+security-report-*.html
+security-report-*.json
+sast-report.json
+dependency-report.json
+secrets-report.json
+iac-report.json
